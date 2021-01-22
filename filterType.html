@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .filterDiv {
+            display: none;
+        }
+        
+        .show {
+            display: block !important;
+        }
+    </style>
+
+</head>
+
+<body>
+    <h1>Exercice API pokemon</h1>
+
+    <h4>Premier element de notre liste:</h4>
+    <div id="first"></div>
+
+    <h4>Filter Liste:</h4>
+    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
+
+
+    <div id="myBtnContainer">
+        <button class="btn active" onclick="filterSelection('all')"> Show All</button>
+        <button class="btn" onclick="filterSelection('feu')"> feu</button>
+        <button class="btn" onclick="filterSelection('eau')"> eau</button>
+        <button class="btn" onclick="filterSelection('air')"> air</button>
+        <button class="btn" onclick="filterSelection('elec')"> elec</button>
+        <button class="btn" onclick="filterSelection('psy')"> psy</button>
+    </div>
+    <h4>Liste:</h4>
+    <div id="list"></div>
+
+
+
+    <!-- Vous pouvez aussi ajouter la génération auto en décommentant le setInterval dans index.js -->
+    <!-- <button onclick='getPoke()'>Générer une nouvelle blague</button> -->
+
+
+
+    <script>
+        filterSelection("all")
+
+        function filterSelection(c) {
+            var x, i;
+            x = document.getElementsByClassName("filterDiv");
+            if (c == "all") c = "";
+            for (i = 0; i < x.length; i++) {
+                w3RemoveClass(x[i], "show");
+                if (x[i].className.indexOf(c) > -1) w3AddClass(x[i], "show");
+            }
+        }
+
+        function w3AddClass(element, name) {
+
+            var i, arr1, arr2;
+            arr1 = element.className.split(" ");
+            arr2 = name.split(" ");
+            for (i = 0; i < arr2.length; i++) {
+                if (arr1.indexOf(arr2[i]) == -1) {
+                    element.className += " " + arr2[i];
+                }
+            }
+
+        }
+
+        function w3RemoveClass(element, name) {
+            var i, arr1, arr2;
+            arr1 = element.className.split(" ");
+            arr2 = name.split(" ");
+            for (i = 0; i < arr2.length; i++) {
+                while (arr1.indexOf(arr2[i]) > -1) {
+                    arr1.splice(arr1.indexOf(arr2[i]), 1);
+                }
+            }
+            element.className = arr1.join(" ");
+        }
+
+
+        ///-------------------------------------------------///
+
+        // Url de l'api
+        const url = 'http://localhost:5500/poke.json'
+
+        const first = document.getElementById('first')
+        const list = document.getElementById('list')
+
+        function getPoke() {
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    const poke = data.results
+                    makeFirst(poke[0])
+                    makeList(poke)
+                })
+                .catch(err => console.log(err))
+        }
+
+        // notre fonction de creation de notre premier element dans notre html
+        function makeFirst(data) {
+            console.log('FIRST:', data)
+                // Variable de creation d'un UL
+            let ul = document.createElement('ul')
+                // Variable de creation d'un LI
+            let li = document.createElement('li')
+                // On créé un enfant à ul qui es li
+            ul.appendChild(li)
+                // On définit la valeur innerHTML de LI
+            li.innerHTML = data.name
+
+            // On demande à notre div parent de creer son enfant à partir de ul
+            first.appendChild(ul)
+
+        }
+
+
+        function makeList(data) {
+            console.log("LISTE: ", data)
+            let ul = document.createElement('ul')
+            ul.setAttribute('id', 'myUl')
+            for (var i = 0; i < data.length; i++) {
+                let li = document.createElement('li')
+                li.classList.add('filterDiv')
+                li.classList.add(data[i].type)
+                let a = document.createElement('a')
+                    // console.log(a)
+                li.appendChild(a)
+                a.innerHTML = data[i].name
+
+                ul.appendChild(li)
+
+                list.appendChild(ul)
+                    // console.log(data[i].name)
+            }
+        }
+
+        getPoke()
+
+        let input, filter, ul, li, a, i, txtValue;
+
+        function myFunction() {
+
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            ul = document.getElementById("myUl");
+            li = ul.getElementsByTagName("li");
+
+            console.log(ul)
+            for (i = 0; i < li.length; i++) {
+                a = li[i].getElementsByTagName("a")[0];
+                txtValue = a.textContent || a.innerText;
+
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    li[i].style.display = "";
+                } else {
+                    li[i].style.display = "none";
+                }
+            }
+            console.log(filter)
+        }
+    </script>
+
+</body>
+
+</html>
